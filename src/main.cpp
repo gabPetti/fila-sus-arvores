@@ -11,8 +11,6 @@
 #include "llrbTree.h"
 
 #include <chrono>
-#include <cstdint>
-#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -21,90 +19,101 @@
 #include <string>
 #include <vector>
 
-namespace {
+using namespace std;
 
-std::string trim(std::string value) {
-	const std::string whitespace = " \t\r\n";
-	const std::string::size_type begin = value.find_first_not_of(whitespace);
-	if (begin == std::string::npos) {
+string trim(const string& value) {
+	const string whitespace = " \t\r\n";
+	const string::size_type begin = value.find_first_not_of(whitespace);
+	if (begin == string::npos) {
 		return "";
 	}
-	const std::string::size_type end = value.find_last_not_of(whitespace);
+	const string::size_type end = value.find_last_not_of(whitespace);
 	return value.substr(begin, end - begin + 1);
 }
 
-std::vector<std::uint32_t> loadCsvValues(const std::string& filePath) {
-	std::ifstream input(filePath.c_str());
+vector<int> loadCsvIds(const string& filePath) {
+	ifstream input(filePath.c_str());
 	if (!input.is_open()) {
-		std::ostringstream message;
+		ostringstream message;
 		message << "unable to open " << filePath;
-		throw std::runtime_error(message.str());
+		throw runtime_error(message.str());
 	}
 
-	std::vector<std::uint32_t> values;
-	std::string line;
-	while (std::getline(input, line)) {
+	vector<int> ids;
+	string line;
+	while (getline(input, line)) {
 		if (line.empty()) {
 			continue;
 		}
 
-		std::stringstream lineStream(line);
-		std::string field;
-		while (std::getline(lineStream, field, ',')) {
-			field = trim(field);
-			if (field.empty()) {
-				continue;
-			}
+		stringstream lineStream(line);
+		string firstField;
+		if (!getline(lineStream, firstField, ',')) {
+			continue;
+		}
 
-			char* end = nullptr;
-			const unsigned long parsed = std::strtoul(field.c_str(), &end, 10);
-			if (end != field.c_str() && *trim(std::string(end)).c_str() == '\0') {
-				values.push_back(static_cast<std::uint32_t>(parsed));
-				break;
-			}
+		firstField = trim(firstField);
+		if (firstField.empty()) {
+			continue;
+		}
+
+		istringstream valueStream(firstField);
+		int id = 0;
+		char extra = '\0';
+		if (valueStream >> id && !(valueStream >> extra)) {
+			ids.push_back(id);
 		}
 	}
 
-	if (values.empty()) {
-		throw std::runtime_error("data.csv did not contain any numeric values");
+	if (ids.empty()) {
+		throw runtime_error("data.csv did not contain any numeric ids");
 	}
 
-	return values;
+	return ids;
 }
 
-template <typename Tree>
-double timeInsert(Tree& tree, const std::vector<std::uint32_t>& values) {
-	const auto start = std::chrono::steady_clock::now();
-	for (std::vector<std::uint32_t>::const_iterator it = values.begin(); it != values.end(); ++it) {
+double benchmarkAvl(const vector<int>& ids) {
+	avlTree<int> tree;
+	tree.freedPreallocate(ids.size());
+
+	const chrono::steady_clock::time_point start = chrono::steady_clock::now();
+	for (vector<int>::const_iterator it = ids.begin(); it != ids.end(); ++it) {
 		if (!tree.insert(*it)) {
-			std::ostringstream message;
+			ostringstream message;
 			message << "duplicate key in data.csv: " << *it;
-			throw std::runtime_error(message.str());
+			throw runtime_error(message.str());
 		}
 	}
-	const auto finish = std::chrono::steady_clock::now();
-	const std::chrono::duration<double> elapsed = finish - start;
-	return elapsed.count();
+	const chrono::steady_clock::time_point finish = chrono::steady_clock::now();
+	return chrono::duration<double>(finish - start).count();
 }
 
-} // namespace
+double benchmarkRedBlack(const vector<int>& ids) {
+	llrbTree<int> tree;
+	tree.freedPreallocate(ids.size());
+
+	const chrono::steady_clock::time_point start = chrono::steady_clock::now();
+	for (vector<int>::const_iterator it = ids.begin(); it != ids.end(); ++it) {
+		if (!tree.insert(*it)) {
+			ostringstream message;
+			message << "duplicate key in data.csv: " << *it;
+			throw runtime_error(message.str());
+		}
+	}
+	const chrono::steady_clock::time_point finish = chrono::steady_clock::now();
+	return chrono::duration<double>(finish - start).count();
+}
 
 int main() {
-	const std::vector<std::uint32_t> values = loadCsvValues("data.csv");
+	const vector<int> ids = loadCsvIds("data.csv");
 
-	avlTree<std::uint32_t> avl;
-	llrbTree<std::uint32_t> redBlack;
+	const double avlSeconds = benchmarkAvl(ids);
+	const double redBlackSeconds = benchmarkRedBlack(ids);
 
-	avl.freedPreallocate(values.size());
-	redBlack.freedPreallocate(values.size());
-
-	const double avlSeconds = timeInsert(avl, values);
-	const double redBlackSeconds = timeInsert(redBlack, values);
-
-	std::cout << std::fixed << std::setprecision(6);
-	std::cout << "rows: " << values.size() << '\n';
-	std::cout << "avl insert time: " << avlSeconds << " s" << '\n';
-	std::cout << "red-black insert time: " << redBlackSeconds << " s" << '\n';
+	cout << fixed << setprecision(6);
+	cout << "rows: " << ids.size() << '\n';
+	cout << "avl insert time: " << avlSeconds << " s" << '\n';
+	cout << "red-black insert time: " << redBlackSeconds << " s" << '\n';
 
 	return 0;
 }
