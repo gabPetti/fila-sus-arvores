@@ -1,5 +1,5 @@
 Cenario,Tempo_ns,Rotacoes
-A (Consulta Pesada),7937,983
-B (Escrita Pesada),9124,4297
-C (Misto Realista),8129,2665
-D (Rajada Agend.),8126,777
+A (Consulta Pesada),17339,27
+B (Escrita Pesada),12363,0
+C (Misto Realista),13658,0
+D (Rajada Agend.),0,0

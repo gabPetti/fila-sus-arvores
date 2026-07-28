@@ -5,7 +5,8 @@
 #include <chrono>
 #include <random>
 
-// Data atual usada na chave
+
+// Variavel global para a data atual de comparacao
 string obterDataAtual(){
     time_t agora = time(nullptr);
     tm* data = localtime(&agora);
@@ -17,7 +18,7 @@ string obterDataAtual(){
 }
 string dataAtual = obterDataAtual();
 
-// Calcula a espera em dias
+// Determina a chave para a comparação e implementação dos nós
 int qtdDiasEsperados(const internacao& i){
     int diaRegistro, mesRegistro, anoRegistro;
     sscanf(i.data.c_str(), "%d/%d/%d", &diaRegistro, &mesRegistro, &anoRegistro); 
@@ -33,7 +34,7 @@ int calculaChave(const internacao& i){
     return i.prioridade * pesoPrioridade + qtdDiasEsperados(i);
 }
 
-// Ordenacao da chave
+// Reordenando os operadores
 bool operator<(const internacao& a, const internacao& b){
     int chaveA = calculaChave(a);
     int chaveB = calculaChave(b);
@@ -89,7 +90,7 @@ internacao lerInternacao() {
     return a;
 }
 
-// Benchmark da AVL
+// ================= FUNÇÃO DE BENCHMARK AVL =================
 void executarBenchmarkAVL(avlTree<internacao>& arvore, tabelaHash& indice) {
     if (arvore.empty()) {
         cout << "\nERRO: A arvore esta vazia! Carregue o arquivo (Opcao 1) antes de testar.\n";
@@ -107,7 +108,7 @@ void executarBenchmarkAVL(avlTree<internacao>& arvore, tabelaHash& indice) {
     auto getRotacoes = [&]() { return arvore.lli + arvore.lri + arvore.rli + arvore.rri + arvore.lle + arvore.lre + arvore.rle + arvore.rre; };
     auto resetRotacoes = [&]() { arvore.lli = arvore.lri = arvore.rli = arvore.rri = arvore.lle = arvore.lre = arvore.rle = arvore.rre = 0; };
 
-    // Cenario A
+    // CENARIO A: Consulta Pesada
     resetRotacoes();
     auto start = chrono::high_resolution_clock::now();
     for(int i=0; i<10000; i++) {
@@ -124,7 +125,7 @@ void executarBenchmarkAVL(avlTree<internacao>& arvore, tabelaHash& indice) {
     long long rotA = getRotacoes();
     cout << "Cenario A (Consulta Pesada) : " << tempoA << " ns/op | Rotacoes: " << rotA << "\n";
 
-    // Cenario B
+    // CENARIO B: Escrita Pesada
     resetRotacoes();
     start = chrono::high_resolution_clock::now();
     for(int i=0; i<10000; i++) {
@@ -145,7 +146,7 @@ void executarBenchmarkAVL(avlTree<internacao>& arvore, tabelaHash& indice) {
     long long rotB = getRotacoes();
     cout << "Cenario B (Escrita Pesada)  : " << tempoB << " ns/op | Rotacoes: " << rotB << "\n";
 
-    // Cenario C
+    // CENARIO C: Misto Realista
     resetRotacoes();
     start = chrono::high_resolution_clock::now();
     for(int i=0; i<10000; i++) {
@@ -166,7 +167,7 @@ void executarBenchmarkAVL(avlTree<internacao>& arvore, tabelaHash& indice) {
     long long rotC = getRotacoes();
     cout << "Cenario C (Misto Realista)  : " << tempoC << " ns/op | Rotacoes: " << rotC << "\n";
 
-    // Cenario D
+    // CENARIO D: Rajada Agendamento
     resetRotacoes();
     start = chrono::high_resolution_clock::now();
     int removidos = 0;
@@ -180,7 +181,7 @@ void executarBenchmarkAVL(avlTree<internacao>& arvore, tabelaHash& indice) {
     cout << "Cenario D (Rajada Agendam.): " << tempoD << " ns/op | Rotacoes: " << rotD << "\n";
     cout << "=======================================================\n";
 
-    // Exporta os resultados
+    // EXPORTANDO RESULTADOS PARA CSV
     ofstream arquivoSaida("benchmark_avl.csv");
     if (arquivoSaida.is_open()) {
         arquivoSaida << "Cenario,Tempo_ns,Rotacoes\n";

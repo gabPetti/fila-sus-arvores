@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Carrega os CSVs gerados pelo C++
+# 1. Leitura dos dados exportados pelo C++
 try:
     df_avl = pd.read_csv('benchmark_avl.csv')
     df_rn = pd.read_csv('benchmark_rn.csv')
@@ -16,14 +16,16 @@ tempo_rn = df_rn['Tempo_ns'].tolist()
 rotacoes_avl = df_avl['Rotacoes'].tolist()
 rotacoes_rn = df_rn['Rotacoes'].tolist()
 
-# Configura o layout
+# 2. Configurações de layout
 x = np.arange(len(cenarios))
 largura = 0.35
 plt.style.use('seaborn-v0_8-whitegrid')
 cor_avl = '#1b9e77'
 cor_rn = '#d95f02'
 
-# Gráfico de tempo de execução
+# ==========================================
+# 3. Gráfico 1: Tempo de Execução
+# ==========================================
 fig1, ax1 = plt.subplots(figsize=(10, 6))
 barras1_avl = ax1.bar(x - largura/2, tempo_avl, largura, label='AVL', color=cor_avl)
 barras1_rn = ax1.bar(x + largura/2, tempo_rn, largura, label='Rubro-Negra', color=cor_rn)
@@ -50,7 +52,9 @@ fig1.tight_layout()
 plt.savefig('grafico_tempo_execucao.png', dpi=300)
 print("-> grafico_tempo_execucao.png gerado com sucesso!")
 
-# Grafico de quantidade de rotações
+# ==========================================
+# 4. Gráfico 2: Quantidade de Rotações
+# ==========================================
 fig2, ax2 = plt.subplots(figsize=(10, 6))
 barras2_avl = ax2.bar(x - largura/2, rotacoes_avl, largura, label='AVL', color=cor_avl)
 barras2_rn = ax2.bar(x + largura/2, rotacoes_rn, largura, label='Rubro-Negra', color=cor_rn)
@@ -64,7 +68,7 @@ ax2.legend(fontsize=12)
 def autolabel_rotacoes(barras, ax):
     for barra in barras:
         altura = barra.get_height()
-        ax.annotate(f'{int(altura):,}'.replace(',','.'), 
+        ax.annotate(f'{int(altura):,}'.replace(',','.'),
                     xy=(barra.get_x() + barra.get_width() / 2, altura),
                     xytext=(0, 3), 
                     textcoords="offset points",

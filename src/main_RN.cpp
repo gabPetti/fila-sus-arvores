@@ -5,7 +5,7 @@
 #include <chrono>
 #include <random>
 
-// Data atual usada na chave
+// Variavel global para a data atual de comparacao
 string obterDataAtual(){
     time_t agora = time(nullptr);
     tm* data = localtime(&agora);
@@ -17,7 +17,7 @@ string obterDataAtual(){
 }
 string dataAtual = obterDataAtual();
 
-// Calcula a espera em dias
+// Determina a chave para a comparação e implementação dos nós
 int qtdDiasEsperados(const internacao& i){
     int diaRegistro, mesRegistro, anoRegistro;
     sscanf(i.data.c_str(), "%d/%d/%d", &diaRegistro, &mesRegistro, &anoRegistro); 
@@ -33,7 +33,7 @@ int calculaChave(const internacao& i){
     return i.prioridade * pesoPrioridade + qtdDiasEsperados(i);
 }
 
-// Ordenacao da chave
+// Reordenando os operadores
 bool operator<(const internacao& a, const internacao& b){
     int chaveA = calculaChave(a);
     int chaveB = calculaChave(b);
@@ -89,7 +89,7 @@ internacao lerInternacao() {
     return a;
 }
 
-// Benchmark da rubro-negra
+// ================= FUNÇÃO DE BENCHMARK RUBRO-NEGRA =================
 void executarBenchmarkRN(burbTree<internacao>& arvore, tabelaHash& indice) {
     if (arvore.empty()) {
         cout << "\nERRO: A arvore esta vazia! Carregue o arquivo (Opcao 1) antes de testar.\n";
@@ -107,7 +107,7 @@ void executarBenchmarkRN(burbTree<internacao>& arvore, tabelaHash& indice) {
     auto getRotacoes = [&]() { return arvore.rotateL + arvore.rotateR; };
     auto resetRotacoes = [&]() { arvore.rotateL = arvore.rotateR = 0; };
 
-    // Cenario A: Consulta Pesada
+    // CENARIO A: Consulta Pesada
     resetRotacoes();
     auto start = chrono::high_resolution_clock::now();
     for(int i=0; i<10000; i++) {
@@ -124,7 +124,7 @@ void executarBenchmarkRN(burbTree<internacao>& arvore, tabelaHash& indice) {
     long long rotA = getRotacoes();
     cout << "Cenario A (Consulta Pesada) : " << tempoA << " ns/op | Rotacoes: " << rotA << "\n";
 
-    // Cenario B: Escrita Pesada
+    // CENARIO B: Escrita Pesada
     resetRotacoes();
     start = chrono::high_resolution_clock::now();
     for(int i=0; i<10000; i++) {
@@ -145,7 +145,7 @@ void executarBenchmarkRN(burbTree<internacao>& arvore, tabelaHash& indice) {
     long long rotB = getRotacoes();
     cout << "Cenario B (Escrita Pesada)  : " << tempoB << " ns/op | Rotacoes: " << rotB << "\n";
 
-    // Cenario C: Misto realista
+    // CENARIO C: Misto Realista
     resetRotacoes();
     start = chrono::high_resolution_clock::now();
     for(int i=0; i<10000; i++) {
@@ -166,7 +166,7 @@ void executarBenchmarkRN(burbTree<internacao>& arvore, tabelaHash& indice) {
     long long rotC = getRotacoes();
     cout << "Cenario C (Misto Realista)  : " << tempoC << " ns/op | Rotacoes: " << rotC << "\n";
 
-    // Cenario D: Rajada de agendamentos
+    // CENARIO D: Rajada Agendamento
     resetRotacoes();
     start = chrono::high_resolution_clock::now();
     int removidos = 0;
@@ -180,7 +180,7 @@ void executarBenchmarkRN(burbTree<internacao>& arvore, tabelaHash& indice) {
     cout << "Cenario D (Rajada Agendam.): " << tempoD << " ns/op | Rotacoes: " << rotD << "\n";
     cout << "=======================================================\n";
 
-    // Exporta os resultados
+    // EXPORTANDO RESULTADOS PARA CSV
     ofstream arquivoSaida("benchmark_rn.csv");
     if (arquivoSaida.is_open()) {
         arquivoSaida << "Cenario,Tempo_ns,Rotacoes\n";
