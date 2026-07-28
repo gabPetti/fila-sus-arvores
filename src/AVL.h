@@ -73,6 +73,7 @@
 #include <exception>
 #include <sstream>
 #include <vector>
+#include <cstdint>
 
 /*
  * The avlTree class defines the root of the AVL tree and stores the

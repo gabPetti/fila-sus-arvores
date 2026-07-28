@@ -1,0 +1,5 @@
+Cenario,Tempo_ns,Rotacoes
+A (Consulta Pesada),8742,1104
+B (Escrita Pesada),11311,5415
+C (Misto Realista),9283,3777
+D (Rajada Agend.),7748,476
