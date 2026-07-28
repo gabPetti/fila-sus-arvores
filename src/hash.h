@@ -2,7 +2,7 @@
 #define HASH_H
 
 #include <unordered_map> //biblioteca que mapeia um indice para um objeto
-#include "internacao.h"
+#include "Internacao.h"
 
 
 class tabelaHash{

@@ -3,11 +3,14 @@
 *.obj
 *.exe
 *.out
+*.a
+*.so
+*.dylib
+*.dll
+*.bin
+*.app
 
-# Local executables built from the source tree
-/src/main
-/src/test_avlTree
-/src/test_burbTree
-/src/test_llrbTree
-/src/test_tdrbTree
-/src/test_stdSet
+# Build directories
+/build/
+/bin/
+/obj/
